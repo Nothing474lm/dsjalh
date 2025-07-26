@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Módulo Profesional: Maquetación Editorial</title>
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Fuentes: Playfair Display & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- React y Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+            color: #1a202c;
+        }
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.17, 0.55, 0.55, 1), transform 0.8s cubic-bezier(0.17, 0.55, 0.55, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal.visible .reveal-child {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-child {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .reveal.visible .reveal-child:nth-child(1) { transition-delay: 0.2s; }
+        .reveal.visible .reveal-child:nth-child(2) { transition-delay: 0.3s; }
+        .reveal.visible .reveal-child:nth-child(3) { transition-delay: 0.4s; }
+        .reveal.visible .reveal-child:nth-child(4) { transition-delay: 0.5s; }
+        
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .fade-out { animation: fadeOut 0.4s ease-in forwards; }
+        .scale-in { animation: scaleIn 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards; }
+        .scale-out { animation: scaleOut 0.4s cubic-bezier(0.755, 0.05, 0.855, 0.06) forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes scaleOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.95); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // =============== DATOS DEL MÓDULO ===============
+        const fundamentals = [
+            { title: "Retículas y Sistemas de Maquetación", description: "La base de todo buen diseño editorial. Aprenderás a crear estructuras sólidas y flexibles que guíen el ojo del lector y organicen el contenido de forma coherente y profesional.", status: "complete", icon: "layout-grid" },
+            { title: "Manejo Avanzado de Tipografía", description: "La tipografía es la voz del diseño. Dominarás el kerning, tracking, leading y las jerarquías para crear textos que no solo se leen, sino que también se sienten.", status: "complete", icon: "pilcrow" },
+            { title: "Estilos de Párrafo y Carácter", description: "La clave para la eficiencia y consistencia. Configurarás estilos que te permitirán aplicar formatos complejos con un solo clic, asegurando uniformidad en todo el documento.", status: "review", icon: "file-signature" },
+            { title: "Páginas Maestras", description: "Trabaja de forma inteligente, no dura. Utilizarás páginas maestras para gestionar elementos repetitivos como numeración, encabezados y pies de página de manera automática.", status: "pending", icon: "copy" }
+        ];
+
+        const projects = [
+            { 
+                title: "Diseño de Revista de 8 Páginas", 
+                description: "Aplicarás todos los fundamentos en un proyecto integral. Diseñarás la portada, un artículo principal y secciones secundarias, enfocándote en la narrativa visual y la jerarquía de la información.",
+                icon: "book-open",
+                details: {
+                    objectives: ["Aplicar una retícula de 12 columnas", "Crear una jerarquía tipográfica clara", "Utilizar páginas maestras para la numeración"],
+                    requirements: ["Portada impactante", "Artículo principal de 4 páginas", "2 secciones secundarias de 1 página c/u", "Uso de estilos de párrafo y carácter"],
+                    proTip: "No temas al espacio en blanco. Es una herramienta de diseño tan poderosa como el texto o la imagen. Úsalo para dar aire a la composición y dirigir la atención del lector."
+                }
+            },
+            { 
+                title: "Folleto Tríptico Corporativo", 
+                description: "El reto de comunicar mucho en poco espacio. Crearás un folleto informativo y persuasivo, prestando especial atención a los pliegues, el flujo de lectura y el impacto visual.",
+                icon: "layout-template",
+                details: {
+                    objectives: ["Organizar información en un formato de 3 cuerpos", "Diseñar para que funcione tanto plegado como desplegado", "Mantener la identidad visual de la marca"],
+                    requirements: ["Formato A4 plegado en 3", "Uso de la paleta de colores y tipografía corporativa", "Incluir un llamado a la acción (CTA) claro"],
+                    proTip: "Imprime una maqueta en papel y pliégala. Esto te ayudará a visualizar cómo interactúa el usuario con el folleto y a detectar posibles problemas en el flujo de lectura."
+                }
+            },
+            { 
+                title: "Cartel Tipográfico Experimental", 
+                description: "Un ejercicio de pura expresión tipográfica. Romperás las reglas de forma controlada para crear un cartel donde la letra es la protagonista, comunicando un mensaje a través de la forma y la composición.",
+                icon: "type",
+                details: {
+                    objectives: ["Explorar la tipografía como elemento gráfico", "Experimentar con composición y jerarquía no convencionales", "Comunicar una emoción o idea a través de la forma de las letras"],
+                    requirements: ["Formato A3", "Uso exclusivo de tipografía (sin imágenes)", "Limitarse a una o dos familias tipográficas"],
+                    proTip: "Empieza con una sola palabra o frase que te inspire. Juega con su escala, rotación, y deconstrucción. A veces, las ideas más potentes surgen de las limitaciones más estrictas."
+                }
+            }
+        ];
+
+        // =============== COMPONENTES ===============
+
+        // --- Laboratorio Interactivo ---
+        const GridSimulator = () => {
+            const [columns, setColumns] = useState(6);
+            const [gutter, setGutter] = useState(16);
+
+            return (
+                <div>
+                    <div className="bg-gray-200 p-4 rounded-lg">
+                        <div className="bg-white p-4 rounded" style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, 1fr)`, gap: `${gutter}px` }}>
+                            {[...Array(columns)].map((_, i) => (
+                                <div key={i} className="h-32 bg-indigo-200 rounded-sm"></div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <label htmlFor="columns" className="font-medium">Columnas: {columns}</label>
+                            <input id="columns" type="range" min="2" max="12" value={columns} onChange={(e) => setColumns(parseInt(e.target.value, 10))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" />
+                        </div>
+                        <div>
+                            <label htmlFor="gutter" className="font-medium">Medianil: {gutter}px</label>
+                            <input id="gutter" type="range" min="4" max="32" value={gutter} onChange={(e) => setGutter(parseInt(e.target.value, 10))} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" />
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const TypographyPlayground = () => {
+            const [fontSize, setFontSize] = useState(16);
+            const [lineHeight, setLineHeight] = useState(1.6);
+            const [letterSpacing, setLetterSpacing] = useState(0);
+            
+            return (
+                <div>
+                    <div className="bg-white p-6 rounded-lg border">
+                        <p style={{ fontSize: `${fontSize}px`, lineHeight: lineHeight, letterSpacing: `${letterSpacing}px` }}>
+                            La tipografía es el arte de organizar las letras en un espacio, de darles forma para que el lenguaje sea visible. Un buen diseño tipográfico hace que la lectura sea fácil, fluida y agradable. Cada ajuste, por pequeño que sea, tiene un gran impacto en la legibilidad y el tono del mensaje.
+                        </p>
+                    </div>
+                     <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <label className="font-medium">Tamaño: {fontSize}px</label>
+                            <input type="range" min="12" max="24" value={fontSize} onChange={(e) => setFontSize(parseInt(e.target.value, 10))} className="w-full" />
+                        </div>
+                        <div>
+                            <label className="font-medium">Interlineado: {lineHeight.toFixed(1)}</label>
+                            <input type="range" min="1.2" max="2.2" step="0.1" value={lineHeight} onChange={(e) => setLineHeight(parseFloat(e.target.value))} className="w-full" />
+                        </div>
+                        <div>
+                            <label className="font-medium">Tracking: {letterSpacing.toFixed(2)}px</label>
+                            <input type="range" min="-1" max="2" step="0.1" value={letterSpacing} onChange={(e) => setLetterSpacing(parseFloat(e.target.value))} className="w-full" />
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
+        // --- Modal de Proyectos ---
+        const ProjectModal = ({ project, onClose }) => {
+            const [closing, setClosing] = useState(false);
+            const handleClose = () => {
+                setClosing(true);
+                setTimeout(onClose, 300);
+            };
+
+            useEffect(() => {
+                const handleKeyDown = (e) => e.key === 'Escape' && handleClose();
+                window.addEventListener('keydown', handleKeyDown);
+                lucide.createIcons();
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, []);
+
+            return (
+                <div onClick={handleClose} className={`fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 ${closing ? 'fade-out' : 'fade-in'}`}>
+                    <div onClick={e => e.stopPropagation()} className={`bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col ${closing ? 'scale-out' : 'scale-in'}`}>
+                        <header className="p-6 flex justify-between items-start border-b">
+                            <div>
+                                <i data-lucide={project.icon} className="w-10 h-10 text-purple-600 mb-2"></i>
+                                <h3 className="text-2xl font-bold font-serif">{project.title}</h3>
+                            </div>
+                            <button onClick={handleClose} className="p-2 rounded-full text-gray-500 hover:bg-gray-100"><i data-lucide="x" className="w-6 h-6"></i></button>
+                        </header>
+                        <main className="p-6 overflow-y-auto space-y-6">
+                            <div>
+                                <h4 className="font-semibold text-lg mb-2">Objetivos de Aprendizaje</h4>
+                                <ul className="space-y-1 list-disc list-inside text-gray-600">
+                                    {project.details.objectives.map(obj => <li key={obj}>{obj}</li>)}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-lg mb-2">Requisitos</h4>
+                                <ul className="space-y-1 list-disc list-inside text-gray-600">
+                                    {project.details.requirements.map(req => <li key={req}>{req}</li>)}
+                                </ul>
+                            </div>
+                            <div className="bg-indigo-50 border-l-4 border-indigo-400 p-4 rounded-r-lg">
+                                <h4 className="font-semibold text-lg mb-1 text-indigo-800">Consejo Profesional</h4>
+                                <p className="text-indigo-700">{project.details.proTip}</p>
+                            </div>
+                        </main>
+                        <footer className="p-6 border-t mt-auto">
+                           <a href="#" className="text-indigo-600 font-semibold flex items-center gap-2 hover:underline">
+                                <i data-lucide="pinterest" className="w-5 h-5"></i>
+                                Ver tablero de inspiración en Pinterest
+                           </a>
+                        </footer>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Componente Principal ---
+        const EditorialModulePage = () => {
+            const [activeLab, setActiveLab] = useState('grid');
+            const [modalProject, setModalProject] = useState(null);
+
+            const getStatusBadge = (status) => {
+                 switch (status) {
+                    case 'complete': return <span className="absolute top-4 right-4 text-xs font-semibold text-green-700 bg-green-100 px-2.5 py-1 rounded-full flex items-center gap-1.5"><i data-lucide="check-circle-2" className="w-4 h-4"></i>Completado</span>;
+                    case 'review': return <span className="absolute top-4 right-4 text-xs font-semibold text-yellow-700 bg-yellow-100 px-2.5 py-1 rounded-full flex items-center gap-1.5"><i data-lucide="alert-circle" className="w-4 h-4"></i>Refuerzo</span>;
+                    default: return <span className="absolute top-4 right-4 text-xs font-semibold text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full flex items-center gap-1.5"><i data-lucide="circle" className="w-4 h-4"></i>Pendiente</span>;
+                }
+            };
+
+            useEffect(() => {
+                lucide.createIcons();
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            lucide.createIcons();
+                        }
+                    });
+                }, { threshold: 0.1 });
+                const elementsToReveal = document.querySelectorAll('.reveal');
+                elementsToReveal.forEach(el => observer.observe(el));
+                return () => elementsToReveal.forEach(el => observer.unobserve(el));
+            }, []);
+
+            return (
+                <div className="min-h-screen bg-gray-100 p-4 sm:p-8 lg:p-12">
+                    {modalProject && <ProjectModal project={modalProject} onClose={() => setModalProject(null)} />}
+                    <div className="max-w-5xl mx-auto">
+                        
+                        <header className="text-center mb-12 md:mb-16 reveal">
+                            <p className="text-sm font-semibold text-indigo-600 mb-2">SEMANA 9-10</p>
+                            <h1 className="font-serif text-4xl md:text-6xl font-bold mb-3">Maquetación Editorial</h1>
+                            <p className="text-lg text-gray-600 max-w-2xl mx-auto">Del lienzo en blanco a la publicación impresa y digital: dominando el arte de la composición con Adobe InDesign.</p>
+                        </header>
+
+                        <section className="mb-12 md:mb-16 reveal">
+                            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-8 text-center">Fundamentos Clave</h2>
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {fundamentals.map((item, index) => (
+                                    <div key={index} className="relative bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 reveal-child">
+                                        {getStatusBadge(item.status)}
+                                        <i data-lucide={item.icon} className="w-8 h-8 text-indigo-500 mb-4"></i>
+                                        <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+                                        <p className="text-sm text-gray-600">{item.description}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                        
+                        <section className="mb-12 md:mb-16 reveal">
+                            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-8 text-center">Laboratorio Interactivo</h2>
+                            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm reveal-child">
+                                <div className="flex justify-center border-b mb-4">
+                                    <button onClick={() => setActiveLab('grid')} className={`px-4 py-2 font-semibold transition-colors ${activeLab === 'grid' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-gray-500'}`}>Simulador de Retícula</button>
+                                    <button onClick={() => setActiveLab('typo')} className={`px-4 py-2 font-semibold transition-colors ${activeLab === 'typo' ? 'border-b-2 border-indigo-500 text-indigo-600' : 'text-gray-500'}`}>Juego Tipográfico</button>
+                                </div>
+                                <div>
+                                    {activeLab === 'grid' ? <GridSimulator /> : <TypographyPlayground />}
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="reveal">
+                            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-8 text-center">Proyectos Prácticos</h2>
+                             <div className="grid lg:grid-cols-3 gap-6">
+                                {projects.map((item, index) => (
+                                    <div key={index} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 reveal-child flex flex-col">
+                                        <i data-lucide={item.icon} className="w-8 h-8 text-purple-600 mb-4"></i>
+                                        <h3 className="font-semibold text-lg mb-2 flex-grow">{item.title}</h3>
+                                        <p className="text-sm text-gray-600 mb-4">{item.description}</p>
+                                        <button onClick={() => setModalProject(item)} className="mt-auto w-full text-sm font-semibold text-indigo-600 hover:text-indigo-800 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 transition-colors">
+                                            Ver Detalles
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<EditorialModulePage />);
+    </script>
+</body>
+</html>
